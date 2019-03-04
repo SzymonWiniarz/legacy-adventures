@@ -1,0 +1,9 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8u181
+    steps:
+      - checkout
+      - run: ./gradlew clean test
+      - run: ./gradlew buid -x test
