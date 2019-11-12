@@ -1,2 +1,5 @@
 rootProject.name = 'legacy-adventures'
+include 'game'
+include 'adventures'
+include 'ui-cli'
 

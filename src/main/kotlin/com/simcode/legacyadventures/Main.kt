@@ -3,7 +3,7 @@ package com.simcode.legacyadventures
 import com.simcode.legacyadventures.adventures.Adventure
 import com.simcode.legacyadventures.adventures.parser.AdventureParser
 import com.simcode.legacyadventures.game.Game
-import com.simcode.legacyadventures.ui.UI
+import com.simcode.legacyadventures.ui.cli.UI
 import java.nio.file.Paths
 
 fun main() {

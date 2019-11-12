@@ -1,4 +1,4 @@
-package com.simcode.legacyadventures.ui
+package com.simcode.legacyadventures.ui.cli
 
 import com.simcode.legacyadventures.game.Game
 import com.simcode.legacyadventures.game.action.Action
