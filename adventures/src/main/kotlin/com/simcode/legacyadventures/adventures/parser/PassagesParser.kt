@@ -8,7 +8,7 @@ import java.nio.file.Path
 private const val PASSAGES_FILE_NAME = "passages.csv"
 private const val PASSAGES_COLUMNS_COUNT = 2
 
-class PassagesParser(private val descriptionTextReader: DescriptionTextReader): DirectoryParser<Passages> {
+internal class PassagesParser(private val descriptionTextReader: DescriptionTextReader): DirectoryParser<Passages> {
 
     override fun parse(directory: Path): Passages {
         val descriptionText = descriptionTextReader.readDescriptionText(directory)

@@ -8,7 +8,7 @@ import java.util.stream.Collectors
 
 private const val LOCATIONS_DIRECTORY_NAME = "locations"
 
-class AdventureParser(private val descriptionTextReader: DescriptionTextReader, private val locationParser: LocationParser): DirectoryParser<Adventure> {
+internal class AdventureParser(private val descriptionTextReader: DescriptionTextReader, private val locationParser: LocationParser): DirectoryParser<Adventure> {
 
     override fun parse(directory: Path): Adventure {
         val descriptionText = descriptionTextReader.readDescriptionText(directory)

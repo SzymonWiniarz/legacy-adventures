@@ -5,7 +5,7 @@ import java.nio.file.Path
 
 private const val PASSAGES_DIRECTORY_NAME = "passages"
 
-class LocationParser(private val descriptionTextReader: DescriptionTextReader, private val passagesParser: PassagesParser): DirectoryParser<Location> {
+internal class LocationParser(private val descriptionTextReader: DescriptionTextReader, private val passagesParser: PassagesParser): DirectoryParser<Location> {
 
     override fun parse(directory: Path): Location {
         val descriptionText = descriptionTextReader.readDescriptionText(directory)

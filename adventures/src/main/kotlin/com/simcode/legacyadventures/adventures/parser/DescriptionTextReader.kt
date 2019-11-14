@@ -5,7 +5,7 @@ import java.nio.file.Path
 
 private const val DESCRIPTION_FILE_NAME = "description.txt"
 
-class DescriptionTextReader {
+internal class DescriptionTextReader {
 
     fun readDescriptionText(directory: Path): String {
         val descriptionFile = directory.resolve(DESCRIPTION_FILE_NAME).toFile()
