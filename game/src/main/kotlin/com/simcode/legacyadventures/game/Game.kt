@@ -1,34 +1,48 @@
 package com.simcode.legacyadventures.game
 
-import com.simcode.legacyadventures.adventures.Adventure
-import com.simcode.legacyadventures.adventures.LocationId
-import com.simcode.legacyadventures.game.action.Action
-import com.simcode.legacyadventures.game.action.ChangeLocation
+import com.simcode.legacyadventures.game.actions.*
+import com.simcode.legacyadventures.game.contexts.GameContext
+import com.simcode.legacyadventures.game.contexts.GameContextInitializer
+import com.simcode.legacyadventures.game.events.ContextChangeEvent
+import com.simcode.legacyadventures.game.events.GameWasStarted
+import java.util.*
 
-class Game(private val adventure: Adventure, private var currentLocationId: LocationId) {
+class Game(private val contextInitializers: List<GameContextInitializer>) {
 
-    fun getDescription(): String {
-        val currentLocation = adventure.locations[currentLocationId]
+    private val contextStack = Stack<GameContext>()
 
-        return "${currentLocation?.description}\n${currentLocation?.passages?.description}"
+    fun start() {
+        initializeNewContext(GameWasStarted())
     }
 
-    fun getAvailableActions(): List<Action> {
-        val currentLocation = adventure.locations[currentLocationId]
+    fun description() = currentContext().description()
 
-        return currentLocation?.passages?.passages?.map { ChangeLocation(it.label, it.targetLocationId) } ?: emptyList()
+    fun availableActions() = currentContext().availableActions()
+
+    fun performAction(action: Action): GameActionResult {
+        when(val actionResult = currentContext().performAction(action)) {
+            is ContextCanBeClosed -> contextStack.pop()
+            is NewContextShouldBeStarted -> initializeNewContext(actionResult.contextChangeEvent)
+            is UnsupportedAction -> return Failure("Unsupported action: $action")
+        }
+
+        return Success
     }
 
-    fun switchLocation(targetLocationId: LocationId) {
-        val currentLocation = adventure.locations[currentLocationId] ?: throw IllegalStateException("Location '$currentLocationId' doesn't exist")
-        val availablePassages = currentLocation.passages.passages
-        val targetLocationReachable = availablePassages
-            .map { it.targetLocationId }
-            .contains(targetLocationId)
+    private fun initializeNewContext(contextChangeEvent: ContextChangeEvent) {
+        val newGameContext = contextInitializers
+            .find { it.supportsEvent(contextChangeEvent) }
+            ?.initialize()
 
-        require(targetLocationReachable) { "You cannot pass from $currentLocationId to $targetLocationId" }
+        requireNotNull(newGameContext) { "No matching com.simcode.legacyadventures.game context that supports the event: $contextChangeEvent" }
 
-        this.currentLocationId = targetLocationId
+        contextStack.push(newGameContext)
+    }
+
+    private fun currentContext(): GameContext {
+        require(contextStack.isNotEmpty()) { "Game is not in any context right now" }
+
+        return contextStack.peek()
     }
 
 }

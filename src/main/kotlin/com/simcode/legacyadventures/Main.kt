@@ -10,7 +10,7 @@ fun main() {
     val adventureDirectory = Paths.get(Adventure::class.java.getResource("/adventures/sample_adventure").toURI())
     val adventure = Adventure.from(adventureDirectory)
 
-    val game = Game(adventure, "starting_hall")
+    val game = Game(emptyList())
 
     val ui = UI(game)
 
