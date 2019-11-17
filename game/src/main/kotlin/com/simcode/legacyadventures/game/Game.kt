@@ -34,7 +34,7 @@ class Game(private val contextInitializers: List<GameContextInitializer>) {
             .find { it.supportsEvent(contextChangeEvent) }
             ?.initialize()
 
-        requireNotNull(newGameContext) { "No matching com.simcode.legacyadventures.game context that supports the event: $contextChangeEvent" }
+        requireNotNull(newGameContext) { "No matching game context that supports the event: $contextChangeEvent" }
 
         contextStack.push(newGameContext)
     }
