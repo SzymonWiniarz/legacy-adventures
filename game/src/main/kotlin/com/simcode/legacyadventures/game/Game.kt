@@ -7,12 +7,12 @@ import com.simcode.legacyadventures.game.events.ContextChangeEvent
 import com.simcode.legacyadventures.game.events.GameWasStarted
 import java.util.*
 
-class Game(private val contextInitializers: List<GameContextInitializer>) {
+class Game private constructor(private val contextInitializers: List<GameContextInitializer>, private val commonContexts: List<GameContext>) {
 
     private val contextStack = Stack<GameContext>()
 
-    fun start() {
-        initializeNewContext(GameWasStarted())
+    private fun start() {
+        initializeNewContext(GameWasStarted)
     }
 
     fun description() = currentContext().description()
@@ -45,4 +45,32 @@ class Game(private val contextInitializers: List<GameContextInitializer>) {
         return contextStack.peek()
     }
 
+
+    companion object {
+        fun builder() = Builder()
+
+        fun start() = Builder().start()
+    }
+
+    class Builder {
+        private var contextInitializers: List<GameContextInitializer> = emptyList()
+        private var commonContexts: List<GameContext> = emptyList()
+
+        fun withContextInitializers(contextInitializers: List<GameContextInitializer>): Builder {
+            this.contextInitializers = contextInitializers
+            return this
+        }
+
+        fun withCommonContexts(commonContexts: List<GameContext>): Builder {
+            this.commonContexts = commonContexts
+            return this
+        }
+
+        fun start(): Game {
+            val game = Game(contextInitializers, commonContexts)
+            game.start()
+
+            return game
+        }
+    }
 }

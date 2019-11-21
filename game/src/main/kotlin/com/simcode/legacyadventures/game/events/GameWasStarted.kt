@@ -1,3 +1,3 @@
 package com.simcode.legacyadventures.game.events
 
-internal class GameWasStarted: ContextChangeEvent
+internal object GameWasStarted: ContextChangeEvent

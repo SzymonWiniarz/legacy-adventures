@@ -22,7 +22,7 @@ internal class AdventureParser(private val descriptionTextReader: DescriptionTex
         return Adventure(descriptionText, locations)
     }
 
-    companion object Builder {
+    companion object {
 
         fun create(): AdventureParser {
             val descriptionTextReader = DescriptionTextReader()
