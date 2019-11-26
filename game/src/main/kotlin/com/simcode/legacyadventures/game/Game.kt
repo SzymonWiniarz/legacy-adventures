@@ -4,15 +4,15 @@ import com.simcode.legacyadventures.game.actions.*
 import com.simcode.legacyadventures.game.contexts.GameContext
 import com.simcode.legacyadventures.game.contexts.GameContextInitializer
 import com.simcode.legacyadventures.game.events.ContextChangeEvent
-import com.simcode.legacyadventures.game.events.GameWasStarted
+import com.simcode.legacyadventures.game.events.GameStarted
 import java.util.*
 
-class Game private constructor(private val contextInitializers: List<GameContextInitializer>, private val commonContexts: List<GameContext>) {
+class Game private constructor(private val contextInitializers: List<GameContextInitializer>) {
 
     private val contextStack = Stack<GameContext>()
 
     private fun start() {
-        initializeNewContext(GameWasStarted)
+        initializeNewContext(GameStarted)
     }
 
     fun description() = currentContext().description()
@@ -47,27 +47,21 @@ class Game private constructor(private val contextInitializers: List<GameContext
 
 
     companion object {
-        fun builder() = Builder()
+        fun configure() = Builder()
 
         fun start() = Builder().start()
     }
 
     class Builder {
         private var contextInitializers: List<GameContextInitializer> = emptyList()
-        private var commonContexts: List<GameContext> = emptyList()
 
         fun withContextInitializers(contextInitializers: List<GameContextInitializer>): Builder {
             this.contextInitializers = contextInitializers
             return this
         }
 
-        fun withCommonContexts(commonContexts: List<GameContext>): Builder {
-            this.commonContexts = commonContexts
-            return this
-        }
-
         fun start(): Game {
-            val game = Game(contextInitializers, commonContexts)
+            val game = Game(contextInitializers)
             game.start()
 
             return game
