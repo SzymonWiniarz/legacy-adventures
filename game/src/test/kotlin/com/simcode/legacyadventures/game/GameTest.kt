@@ -142,33 +142,25 @@ internal class GameTest {
 
 private object SomeAction: Action {
 
-    override fun type() = "some action"
-
-    override fun targetLabels() = emptyList<String>()
+    override fun triggeringCommands() = setOf(ActionCommand("some action"))
 
 }
 
 private object DoSomethingWithinCurrentContext: Action {
 
-    override fun type() = "do something within the current context"
-
-    override fun targetLabels() = emptyList<String>()
+    override fun triggeringCommands() = setOf(ActionCommand("do something within the current context"))
 
 }
 
 private object SwitchToDifferentContext: Action {
 
-    override fun type() = "switch to a different context"
-
-    override fun targetLabels() = emptyList<String>()
+    override fun triggeringCommands() = setOf(ActionCommand("switch to a different context"))
 
 }
 
 private object GoBackToInitialContext: Action {
 
-    override fun type() = "go back to initial context"
-
-    override fun targetLabels() = emptyList<String>()
+    override fun triggeringCommands() = setOf(ActionCommand("go back to initial context"))
 
 }
 
