@@ -1,7 +1,7 @@
 package com.simcode.legacyadventures.game
 
 import com.simcode.legacyadventures.game.actions.*
-import com.simcode.legacyadventures.game.contexts.BaseGameContext
+import com.simcode.legacyadventures.game.contexts.GameContext
 import com.simcode.legacyadventures.game.contexts.GameContextInitializer
 import com.simcode.legacyadventures.game.events.ContextChangeEvent
 import com.simcode.legacyadventures.game.events.GameStarted
@@ -182,7 +182,7 @@ private object InitialContextInitializer: GameContextInitializer {
 private const val INITIAL_CONTEXT_INITIAL_DESCRIPTION = "Initial context in it's initial state"
 private const val INITIAL_CONTEXT_SUBSEQUENT_DESCRIPTION = "Initial context in it's subsequent state"
 
-private class InitialContext: BaseGameContext() {
+private class InitialContext: GameContext {
 
     private var description = INITIAL_CONTEXT_INITIAL_DESCRIPTION
 
@@ -190,14 +190,15 @@ private class InitialContext: BaseGameContext() {
 
     override fun availableActions() = listOf(DoSomethingWithinCurrentContext, SwitchToDifferentContext)
 
-    override fun performSupportedAction(action: Action): ContextActionResult {
+    override fun performAction(action: Action): ContextActionResult {
         return when (action) {
             SwitchToDifferentContext -> NewContextShouldBeStarted(EventChangingContextToSubsequent)
-            else -> {
+            DoSomethingWithinCurrentContext -> {
                 description = INITIAL_CONTEXT_SUBSEQUENT_DESCRIPTION
 
                 ContextShouldStay
             }
+            else -> UnsupportedAction
         }
     }
 
@@ -216,7 +217,7 @@ private object OtherContextInitializer: GameContextInitializer {
 private const val OTHER_CONTEXT_INITIAL_DESCRIPTION = "Other context in it's initial state"
 private const val OTHER_CONTEXT_SUBSEQUENT_DESCRIPTION = "Other context in it's subsequent state"
 
-private class OtherContext: BaseGameContext() {
+private class OtherContext: GameContext {
 
     private var description = OTHER_CONTEXT_INITIAL_DESCRIPTION
 
@@ -224,14 +225,15 @@ private class OtherContext: BaseGameContext() {
 
     override fun availableActions() = listOf(DoSomethingWithinCurrentContext, GoBackToInitialContext)
 
-    override fun performSupportedAction(action: Action): ContextActionResult {
+    override fun performAction(action: Action): ContextActionResult {
         return when (action) {
             GoBackToInitialContext -> ContextCanBeClosed
-            else -> {
+            DoSomethingWithinCurrentContext -> {
                 description = OTHER_CONTEXT_SUBSEQUENT_DESCRIPTION
 
                 ContextShouldStay
             }
+            else -> UnsupportedAction
         }
     }
 
