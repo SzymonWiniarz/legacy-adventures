@@ -1,10 +1,10 @@
 package com.simcode.legacyadventures.game.contexts
 
-import com.simcode.legacyadventures.game.events.ContextChangeEvent
+import com.simcode.legacyadventures.events.ContextChangeEvent
 
 interface GameContextInitializer {
 
-    fun initialize(): GameContext
+    fun initialize(event: ContextChangeEvent): GameContext
 
     fun supportsEvent(event: ContextChangeEvent): Boolean
 

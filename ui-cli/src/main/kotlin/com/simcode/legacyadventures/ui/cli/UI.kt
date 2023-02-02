@@ -1,10 +1,11 @@
 package com.simcode.legacyadventures.ui.cli
 
 import com.simcode.legacyadventures.game.Game
+import com.simcode.legacyadventures.game.actions.Action
+import com.simcode.legacyadventures.game.actions.Failure
+import com.simcode.legacyadventures.game.actions.GameOver
 
 class UI(private val game: Game) {
-
-    private val goToRegex = Regex("go( to)? (?<passage>.+?)")
 
     fun startListeningForCommands() {
         var exitGame = false
@@ -13,38 +14,64 @@ class UI(private val game: Game) {
             println(game.description())
             val availableActions = game.availableActions()
 
+            print("> ")
             val userCommand = readLine()
+            println()
+
+            val commandMatcher = CommandMatcher(availableActions)
 
             when {
                 userCommand == null -> println("Type some command")
                 userCommand == "exit" -> exitGame = true
-//                goToRegex.matches(userCommand) -> {
-//                    val changeLocationAction = findChangeLocationAction(userCommand, availableActions)
-//                    if (changeLocationAction != null) {
-//                        performAction(changeLocationAction)
-//                    } else {
-//                        println("Passage you specified doesn't exist")
-//                    }
-//                }
-//                else -> println("Sorry, but this action is not available at the moment")
+                userCommand == "help" -> printAvailableActions(availableActions)
+                commandMatcher.matchesAny(userCommand) -> exitGame = performAction(commandMatcher)
+                else -> println("Unknown command")
             }
         }
     }
 
-//    private fun findChangeLocationAction(command: String, availableActions: List<Action>): ChangeLocation? {
-//        val passageLabel = goToRegex.matchEntire(command)!!.groups.get("passage")?.value
-//
-//        return availableActions
-//            .filterIsInstance<ChangeLocation>()
-//            .find { it.passageLabel == passageLabel }
-//    }
-//
-//    private fun performAction(action: Action) {
-//        if (action is ChangeLocation) {
-//            com.simcode.legacyadventures.game.switchLocation(action.targetLocationId)
-//        } else {
-//            throw IllegalArgumentException("Currently only ChangeLocation action is supported")
-//        }
-//    }
+    private fun printAvailableActions(availableActions: List<Action>) {
+        println("Available actions in current state:")
+        availableActions
+            .flatMap { it.triggeringCommands() }
+            .map { it.commandBody }
+            .plus("help")
+            .plus("exit")
+            .forEach { println(" - $it") }
+        println()
+    }
 
+    private fun performAction(
+        commandMatcher: CommandMatcher
+    ): Boolean {
+        val actionResult = game.performAction(commandMatcher.lastMatchedAction!!)
+
+        if (actionResult is Failure) {
+            println(actionResult.description)
+        }
+
+        return actionResult is GameOver
+    }
+
+    private class CommandMatcher(availableActions: List<Action>) {
+
+        private val regexForActions: List<Pair<List<Regex>, Action>> = availableActions.map { action ->
+            val regexForCurrentAction = action.triggeringCommands().map { Regex(it.commandBody) }
+            Pair(regexForCurrentAction, action)
+        }
+
+        var lastMatchedAction: Action? = null
+            private set
+
+        fun matchesAny(userCommand: String): Boolean {
+            val matchedAction = regexForActions.find {
+                it.first.find { regex -> regex.matchEntire(userCommand) != null } != null
+            }?.second
+
+            lastMatchedAction = matchedAction
+
+            return matchedAction != null
+        }
+
+    }
 }

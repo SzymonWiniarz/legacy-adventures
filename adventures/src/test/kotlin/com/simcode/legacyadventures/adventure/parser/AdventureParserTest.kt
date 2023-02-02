@@ -15,7 +15,7 @@ internal class AdventureParserTest {
 
     @Test
     internal fun `should properly parse sample adventure root directory`() {
-        val sampleAdventureDirectory = Paths.get(javaClass.getResource("/adventures/sample_adventure").toURI())
+        val sampleAdventureDirectory = Paths.get(javaClass.getResource("/adventures/sample_adventure")?.toURI() ?: throw IllegalStateException("Cannot load sample_adventure"))
 
         val adventure = adventureParser.parse(sampleAdventureDirectory)
 
@@ -29,7 +29,7 @@ internal class AdventureParserTest {
 
     @Test
     internal fun `should properly parse corridor_left location`() {
-        val sampleAdventureDirectory = Paths.get(javaClass.getResource("/adventures/sample_adventure").toURI())
+        val sampleAdventureDirectory = Paths.get(javaClass.getResource("/adventures/sample_adventure")?.toURI() ?: throw IllegalStateException("Cannot load sample_adventure"))
 
         val adventure = adventureParser.parse(sampleAdventureDirectory)
 
@@ -48,7 +48,7 @@ internal class AdventureParserTest {
 
     @Test
     internal fun `should properly parse corridor_right location`() {
-        val sampleAdventureDirectory = Paths.get(javaClass.getResource("/adventures/sample_adventure").toURI())
+        val sampleAdventureDirectory = Paths.get(javaClass.getResource("/adventures/sample_adventure")?.toURI() ?: throw IllegalStateException("Cannot load sample_adventure"))
 
         val adventure = adventureParser.parse(sampleAdventureDirectory)
 
@@ -67,7 +67,7 @@ internal class AdventureParserTest {
 
     @Test
     internal fun `should properly parse starting_hall location`() {
-        val sampleAdventureDirectory = Paths.get(javaClass.getResource("/adventures/sample_adventure").toURI())
+        val sampleAdventureDirectory = Paths.get(javaClass.getResource("/adventures/sample_adventure")?.toURI() ?: throw IllegalStateException("Cannot load sample_adventure"))
 
         val adventure = adventureParser.parse(sampleAdventureDirectory)
 
