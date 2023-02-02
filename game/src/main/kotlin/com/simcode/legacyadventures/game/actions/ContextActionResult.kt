@@ -1,10 +1,10 @@
 package com.simcode.legacyadventures.game.actions
 
-import com.simcode.legacyadventures.game.events.ContextChangeEvent
+import com.simcode.legacyadventures.events.ContextChangeEvent
 
 interface ContextActionResult
 
 object ContextShouldStay: ContextActionResult
 object ContextCanBeClosed: ContextActionResult
-data class NewContextShouldBeStarted(val contextChangeEvent: ContextChangeEvent): ContextActionResult
+data class ChangeContext(val contextChangeEvent: ContextChangeEvent): ContextActionResult
 object UnsupportedAction: ContextActionResult

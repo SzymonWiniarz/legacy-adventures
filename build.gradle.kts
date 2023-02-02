@@ -36,7 +36,9 @@ allprojects {
 }
 
 dependencies {
-    implementation(project(":adventures"))
+    implementation(project(":events"))
     implementation(project(":game"))
+    implementation(project(":adventures"))
     implementation(project(":ui-cli"))
+    implementation(project(":contexts/main-menu"))
 }

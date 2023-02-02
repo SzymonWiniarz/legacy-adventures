@@ -1,10 +1,10 @@
 package com.simcode.legacyadventures.game
 
+import com.simcode.legacyadventures.events.ContextChangeEvent
+import com.simcode.legacyadventures.events.GameStarted
 import com.simcode.legacyadventures.game.actions.*
-import com.simcode.legacyadventures.game.contexts.BaseGameContext
+import com.simcode.legacyadventures.game.contexts.GameContext
 import com.simcode.legacyadventures.game.contexts.GameContextInitializer
-import com.simcode.legacyadventures.game.events.ContextChangeEvent
-import com.simcode.legacyadventures.game.events.GameStarted
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -29,7 +29,7 @@ internal class GameTest {
 
         //then
         assertThat(game.description()).isEqualTo(INITIAL_CONTEXT_INITIAL_DESCRIPTION)
-        assertThat(game.availableActions()).isEqualTo(listOf(DoSomethingWithinCurrentContext, SwitchToDifferentContext))
+        assertThat(game.availableActions()).isEqualTo(listOf(DoSomethingWithinCurrentContext, SwitchToDifferentContext, EndGame))
     }
 
     @Test
@@ -94,7 +94,7 @@ internal class GameTest {
         //then
         assertThat(actionResult).isEqualTo(Success)
         assertThat(game.description()).isEqualTo(INITIAL_CONTEXT_INITIAL_DESCRIPTION)
-        assertThat(game.availableActions()).isEqualTo(listOf(DoSomethingWithinCurrentContext, SwitchToDifferentContext))
+        assertThat(game.availableActions()).isEqualTo(listOf(DoSomethingWithinCurrentContext, SwitchToDifferentContext, EndGame))
     }
 
     @Test
@@ -113,7 +113,7 @@ internal class GameTest {
         //then
         assertThat(actionResult).isEqualTo(Success)
         assertThat(game.description()).isEqualTo(INITIAL_CONTEXT_SUBSEQUENT_DESCRIPTION)
-        assertThat(game.availableActions()).isEqualTo(listOf(DoSomethingWithinCurrentContext, SwitchToDifferentContext))
+        assertThat(game.availableActions()).isEqualTo(listOf(DoSomethingWithinCurrentContext, SwitchToDifferentContext, EndGame))
     }
 
     @Test
@@ -136,6 +136,20 @@ internal class GameTest {
         assertThat(game.availableActions()).isEqualTo(listOf(DoSomethingWithinCurrentContext, GoBackToInitialContext))
     }
 
+    @Test
+    fun `should get GameOver result after performing action that exist initial context`() {
+        //given
+        val game = Game.configure()
+            .withContextInitializers(listOf(InitialContextInitializer))
+            .start()
+
+        //when
+        val actionResult = game.performAction(EndGame)
+
+        //then
+        assertThat(actionResult).isEqualTo(GameOver)
+
+    }
 }
 
 // ----------------------Actions----------------------//
@@ -164,6 +178,12 @@ private object GoBackToInitialContext: Action {
 
 }
 
+private object EndGame: Action {
+
+    override fun triggeringCommands() = setOf(ActionCommand("end game"))
+
+}
+
 
 // ----------------------Events----------------------//
 
@@ -173,7 +193,7 @@ private object EventChangingContextToSubsequent: ContextChangeEvent
 
 private object InitialContextInitializer: GameContextInitializer {
 
-    override fun initialize() = InitialContext()
+    override fun initialize(event: ContextChangeEvent) = InitialContext()
 
     override fun supportsEvent(event: ContextChangeEvent) = event is GameStarted
 
@@ -182,22 +202,24 @@ private object InitialContextInitializer: GameContextInitializer {
 private const val INITIAL_CONTEXT_INITIAL_DESCRIPTION = "Initial context in it's initial state"
 private const val INITIAL_CONTEXT_SUBSEQUENT_DESCRIPTION = "Initial context in it's subsequent state"
 
-private class InitialContext: BaseGameContext() {
+private class InitialContext: GameContext {
 
     private var description = INITIAL_CONTEXT_INITIAL_DESCRIPTION
 
     override fun description() = description
 
-    override fun availableActions() = listOf(DoSomethingWithinCurrentContext, SwitchToDifferentContext)
+    override fun availableActions() = listOf(DoSomethingWithinCurrentContext, SwitchToDifferentContext, EndGame)
 
-    override fun performSupportedAction(action: Action): ContextActionResult {
+    override fun performAction(action: Action): ContextActionResult {
         return when (action) {
-            SwitchToDifferentContext -> NewContextShouldBeStarted(EventChangingContextToSubsequent)
-            else -> {
+            SwitchToDifferentContext -> ChangeContext(EventChangingContextToSubsequent)
+            DoSomethingWithinCurrentContext -> {
                 description = INITIAL_CONTEXT_SUBSEQUENT_DESCRIPTION
 
                 ContextShouldStay
             }
+            EndGame -> ContextCanBeClosed
+            else -> UnsupportedAction
         }
     }
 
@@ -209,14 +231,14 @@ private object OtherContextInitializer: GameContextInitializer {
         return event == EventChangingContextToSubsequent
     }
 
-    override fun initialize() = OtherContext()
+    override fun initialize(event: ContextChangeEvent) = OtherContext()
 
 }
 
 private const val OTHER_CONTEXT_INITIAL_DESCRIPTION = "Other context in it's initial state"
 private const val OTHER_CONTEXT_SUBSEQUENT_DESCRIPTION = "Other context in it's subsequent state"
 
-private class OtherContext: BaseGameContext() {
+private class OtherContext: GameContext {
 
     private var description = OTHER_CONTEXT_INITIAL_DESCRIPTION
 
@@ -224,14 +246,15 @@ private class OtherContext: BaseGameContext() {
 
     override fun availableActions() = listOf(DoSomethingWithinCurrentContext, GoBackToInitialContext)
 
-    override fun performSupportedAction(action: Action): ContextActionResult {
+    override fun performAction(action: Action): ContextActionResult {
         return when (action) {
             GoBackToInitialContext -> ContextCanBeClosed
-            else -> {
+            DoSomethingWithinCurrentContext -> {
                 description = OTHER_CONTEXT_SUBSEQUENT_DESCRIPTION
 
                 ContextShouldStay
             }
+            else -> UnsupportedAction
         }
     }
 

@@ -4,3 +4,4 @@ interface GameActionResult
 
 object Success: GameActionResult
 data class Failure(val description: String): GameActionResult
+object GameOver: GameActionResult

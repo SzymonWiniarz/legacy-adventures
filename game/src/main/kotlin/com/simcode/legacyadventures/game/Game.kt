@@ -1,10 +1,10 @@
 package com.simcode.legacyadventures.game
 
+import com.simcode.legacyadventures.events.ContextChangeEvent
+import com.simcode.legacyadventures.events.GameStarted
 import com.simcode.legacyadventures.game.actions.*
 import com.simcode.legacyadventures.game.contexts.GameContext
 import com.simcode.legacyadventures.game.contexts.GameContextInitializer
-import com.simcode.legacyadventures.game.events.ContextChangeEvent
-import com.simcode.legacyadventures.game.events.GameStarted
 import java.util.*
 
 class Game private constructor(private val contextInitializers: List<GameContextInitializer>) {
@@ -22,8 +22,12 @@ class Game private constructor(private val contextInitializers: List<GameContext
     fun performAction(action: Action): GameActionResult {
         when(val actionResult = currentContext().performAction(action)) {
             is ContextCanBeClosed -> contextStack.pop()
-            is NewContextShouldBeStarted -> initializeNewContext(actionResult.contextChangeEvent)
+            is ChangeContext -> initializeNewContext(actionResult.contextChangeEvent)
             is UnsupportedAction -> return Failure("Unsupported action: $action")
+        }
+
+        if (contextStack.isEmpty()) {
+            return GameOver
         }
 
         return Success
@@ -32,7 +36,7 @@ class Game private constructor(private val contextInitializers: List<GameContext
     private fun initializeNewContext(contextChangeEvent: ContextChangeEvent) {
         val newGameContext = contextInitializers
             .find { it.supportsEvent(contextChangeEvent) }
-            ?.initialize()
+            ?.initialize(contextChangeEvent)
 
         requireNotNull(newGameContext) { "No matching game context that supports the event: $contextChangeEvent" }
 
