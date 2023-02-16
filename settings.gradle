@@ -4,4 +4,5 @@ include 'game'
 include 'adventures'
 include 'ui-cli'
 include 'contexts/main-menu'
+include 'contexts/exploration'
 
