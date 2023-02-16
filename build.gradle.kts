@@ -41,4 +41,5 @@ dependencies {
     implementation(project(":adventures"))
     implementation(project(":ui-cli"))
     implementation(project(":contexts/main-menu"))
+    implementation(project(":contexts/exploration"))
 }
